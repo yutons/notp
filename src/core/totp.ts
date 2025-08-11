@@ -11,10 +11,10 @@ export class TOTP {
      */
     public static generate(
         secret: string,
+        algorithm: string = 'sha1',
         period: number = 30,
         digits: number = 6,
-        timestamp: number = Date.now(),
-        algorithm: string = 'sha1'
+        timestamp: number = Date.now()
     ): string {
         // 计算时间步数（复用HOTP核心逻辑）
         const timeStep = Math.floor(timestamp / 1000 / period);
