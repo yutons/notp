@@ -1,5 +1,4 @@
-import {Algorithm, HOTP} from '../src'
-import {TOTP} from '../src'
+import {Algorithm, Common, HOTP, TOTP} from '../src'
 
 describe('HOTP 测试套件', () => {
     const baseSecret = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -12,6 +11,10 @@ describe('HOTP 测试套件', () => {
             counter: baseCounter,
             digits: baseDigits
         })).toBe('870526');
+    });
+
+    test("HOTP 生成Base32 Secret测试", () => {
+        console.log(Common.generateSecret())
     });
 
     test("HOTP 不同位数测试", () => {

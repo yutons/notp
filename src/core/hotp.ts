@@ -1,4 +1,5 @@
 import * as CryptoJS from 'crypto-js';
+import {Common} from "../utils/common";
 
 export interface HOTPGenerateOptions {
     secret: string;
@@ -38,7 +39,7 @@ export class HOTP {
         digits = typeof digits === "number" ? digits : 6;
 
         // 1. Base32解码密钥
-        const decodedKey = HOTP.base32Decode(secret);
+        const decodedKey = Common.base32Decode(secret);
 
         // 2. 计数器转为8字节大端序
         const buffer = new ArrayBuffer(8);
@@ -110,30 +111,7 @@ export class HOTP {
         return {success: false, delta: null};
     }
 
-    /**
-     * Base32解码（私有方法）
-     */
-    private static base32Decode(b32: string): CryptoJS.lib.WordArray {
-        const bytes: number[] = [];
-        let bits = 0;
-        let value = 0;
 
-        for (let i = 0; i < b32.length; i++) {
-            const char = b32[i].toUpperCase();
-            if (char === '=') break; // 终止填充符
-            const index = HOTP.BASE32_CHARS.indexOf(char);
-            if (index === -1) continue; // 跳过无效字符
-
-            value = (value << 5) | index;
-            bits += 5;
-
-            if (bits >= 8) {
-                bits -= 8;
-                bytes.push((value >>> bits) & 0xff);
-            }
-        }
-        return CryptoJS.lib.WordArray.create(Uint8Array.from(bytes));
-    }
 
     /**
      * 转换HMAC结果为字节数组
