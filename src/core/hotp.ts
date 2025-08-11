@@ -1,5 +1,21 @@
 import * as CryptoJS from 'crypto-js';
 
+export interface HOTPGenerateOptions {
+    secret: string;
+    counter: number;
+    digits?: number;
+    algorithm?: string;
+}
+
+export interface HOTPVerifyOptions {
+    token: string,
+    secret: string,
+    counter: number,
+    digits?: number,
+    window?: number,
+    algorithm?: string,
+}
+
 export class HOTP {
     // 私有静态常量
     private static readonly BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -12,11 +28,15 @@ export class HOTP {
      * @param digits - 验证码位数，默认6位
      */
     public static generate(
-        secret: string,
-        counter: number,
-        digits: number = 6,
-        algorithm: string = 'sha1'
+        {
+            secret,
+            counter,
+            digits = 6,
+            algorithm = 'sha1'
+        }: HOTPGenerateOptions
     ): string {
+        digits = typeof digits === "number" ? digits : 6;
+
         // 1. Base32解码密钥
         const decodedKey = HOTP.base32Decode(secret);
 
@@ -33,7 +53,7 @@ export class HOTP {
 
         // 4. 计算HMAC-sha1
         let hmac: CryptoJS.lib.WordArray;
-        switch (algorithm.toUpperCase()) {
+        switch (algorithm?.toUpperCase()) {
             case 'SHA256':
                 hmac = CryptoJS.HmacSHA256(counterWordArray, decodedKey);
                 break;
@@ -62,22 +82,25 @@ export class HOTP {
      * 验证HOTP验证码
      * @param token - 待验证的令牌
      * @param secret - Base32编码的密钥
-     * @param algorithm - 算法，默认SHA-1
      * @param counter - 计数器值
      * @param digits - 验证码位数，默认6位
      * @param window - 验证窗口数量，默认1
+     * @param algorithm - 算法，默认SHA-1
      */
-    public static verify(
-        token: string,
-        secret: string,
-        algorithm: string,
-        counter: number,
-        digits: number = 6,
-        window: number = 1
+    public static verify({
+                             token,
+                             secret,
+                             counter,
+                             digits = 6,
+                             window = 1,
+                             algorithm = 'sha1'
+                         }: HOTPVerifyOptions
     ): { success: boolean; delta: number | null } {
         for (let i = 0; i <= window; i++) {
             const currentCounter = counter + i;
-            const generatedToken = HOTP.generate(secret, currentCounter, digits, algorithm);
+            const generatedToken = HOTP.generate({
+                secret, counter: currentCounter, digits, algorithm
+            });
 
             if (generatedToken === token) {
                 return {success: true, delta: i};
