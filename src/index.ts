@@ -1,11 +1,14 @@
 import {HOTP} from './core/hotp';
 import {TOTP} from './core/totp';
 
-export {HOTP, TOTP};
+const Algorithm = ["SHA1", "SHA256", "SHA512"];
+
+export {HOTP, TOTP, Algorithm};
 
 const notp = {
     HOTP,
-    TOTP
+    TOTP,
+    Algorithm
 };
 
 export default notp;
