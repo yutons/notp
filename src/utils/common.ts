@@ -67,7 +67,8 @@ export class Common {
             if (char === '=') break;
             const index = BASE32_CHARS.indexOf(char);
             if (index === -1) {
-                throw new Error(`Invalid character in Base32 string: ${char}`);
+                // 跳过无效代码
+                continue;
             }
 
             value = (value << 5) | index;
@@ -78,7 +79,6 @@ export class Common {
                 bytes.push((value >>> bits) & 0xff);
             }
         }
-
         return CryptoJS.lib.WordArray.create(Uint8Array.from(bytes));
     }
 }
