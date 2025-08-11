@@ -1,5 +1,5 @@
 {
-	"name": "notp",
+	"name": "@yutons/notp",
 	"version": "1.0.0",
 	"description": "one-time password generator for javascript",
 	"main": "dist/index.cjs.js",
@@ -10,10 +10,17 @@
 	"files": [
 		"dist"
 	],
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
 	"scripts": {
 		"build": "rollup -c",
 		"test": "jest",
-		"release": "npm run build && npm publish"
+		"release": "npm run build && npm publish",
+		"major": "npm run build && npm version major && npm publish",
+		"minor": "npm run build && npm version minor && npm publish",
+		"patch": "npm run build && npm version patch && npm publish"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^25.0.8",
@@ -27,13 +34,31 @@
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.2.1",
 		"jest": "^30.0.5",
-		"ts-jest": "^29.4.1"
-	},
-	"dependencies": {
+		"ts-jest": "^29.4.1",
 		"@types/crypto-js": "^4.2.2",
 		"crypto-js": "^4.2.0"
 	},
-	"keywords": [],
+	"keywords": [
+		"otp",
+		"totp",
+		"hotp",
+		"2fa",
+		"authentication",
+		"two-factor",
+		"security",
+		"密码",
+		"双因素认证",
+		"动态口令",
+		"一次性密码",
+		"时间令牌",
+		"计数器令牌",
+		"身份验证",
+		"安全验证",
+		"google-authenticator",
+		"authenticator",
+		"rfc6238",
+		"rfc4226"
+	],
 	"author": "",
 	"license": "MIT"
 }
