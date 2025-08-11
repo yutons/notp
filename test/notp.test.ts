@@ -36,7 +36,7 @@ describe('HOTP 测试套件', () => {
 
     test("HOTP 不同密钥测试", () => {
         const secrets = [
-            '12345678901234567890',
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ212141',
             'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
             'ZYXWVUTSRQPONMLKJIHGFEDCBA765432'
         ];
@@ -77,7 +77,7 @@ describe('TOTP 测试套件', () => {
             digits: baseDigits,
             timestamp: baseTimestamp,
             token: '870526'
-        })).toBe(true);
+        }).success).toBe(true);
     });
 
     test("TOTP 不同时间步长测试", () => {
