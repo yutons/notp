@@ -1,42 +1,55 @@
 # NOTP - One-Time Password Library
-[![NPM Version](https://img.shields.io/npm/v/notp.svg)](https://npmjs.org/package/notp)
-[![License](https://img.shields.io/npm/l/notp.svg)](https://github.com/yutons/notp/blob/main/LICENSE)
-[![Test Coverage](https://img.shields.io/codecov/c/github/yutons/notp)](https://codecov.io/gh/yutons/notp)
 
-## 简介
+[](https://npmjs.org/package/notp)
+[](https://github.com/yutons/notp/blob/main/LICENSE)
+[](https://codecov.io/gh/yutons/notp)
+[](https://npm-stat.com/charts.html?package=notp)
+[](https://bundlephobia.com/package/notp)
+[](https://github.com/yutons/notp/stargazers)
 
-notp 是一个轻量级的 JavaScript 库，实现了两种常见的一次性密码算法：
-
-1. **HOTP (HMAC-based One-Time Password)** - 基于 HMAC 的一次性密码算法 (RFC 4226)
-2. **TOTP (Time-based One-Time Password)** - 基于时间的一次性密码算法 (RFC 6238)
-
-该库可用于实现双因素认证 (2FA) 功能，如 Google Authenticator 兼容的验证码生成与验证。
+🔒 轻量级JavaScript库，实现**HOTP**(RFC 4226)和**TOTP**(RFC 6238)一次性密码算法，提供双因素认证(2FA)解决方案，兼容Google
+Authenticator等主流验证器。
 
 > **安全提示**
-> - 密钥存储：避免硬编码密钥，推荐使用环境变量或安全配置中心。
-> - 算法选择：SHA-1已不推荐用于高安全场景，优先使用SHA-256/SHA-512。
+> - 🚨 **密钥存储**：禁止硬编码密钥，推荐使用环境变量或密钥管理服务
+> - ⚠️ **算法选择**：SHA-1存在安全风险，高安全场景请使用SHA-256/SHA-512
+
+---
 
 ## 目录
-- [特性](#特性)
-- [安装](#安装)
-- [使用方法](#使用方法)
+
+- [核心特性](#核心特性)
+- [安装指南](#安装指南)
+- [快速开始](#快速开始)
+- [API参考](#api参考)
 - [算法支持](#算法支持)
-- [API参考](#api-参考)
 - [兼容性](#兼容性)
+- [贡献指南](#贡献指南)
+- [常见问题](#常见问题)
 - [许可证](#许可证)
-- [相关标准](#相关标准)
 
-## 特性
+---
 
-- 🔐 支持 HOTP（基于计数的一次性密码）- [RFC 4226](https://tools.ietf.org/html/rfc4226)
-- 🔐 支持 TOTP（基于时间的一次性密码）- [RFC 6238](https://tools.ietf.org/html/rfc6238)
-- 🔄 基于 RFC 4226 (HOTP) 和 RFC 6238 (TOTP) 标准实现
-- 📦 支持多种模块格式（CommonJS、ES Module、UMD）
-- 📱 兼容 Google Authenticator 和其他主流验证器应用
-- 🌐 支持多种编码格式和哈希算法
-- 🛡️ 安全实现，易于使用
+## 核心特性
 
-## 安装
+- 🔐 **标准化实现**  
+  严格遵循 [RFC 4226](https://tools.ietf.org/html/rfc4226) (HOTP) 和 [RFC 6238](https://tools.ietf.org/html/rfc6238) (
+  TOTP) 规范
+- ⚡ **多环境支持**  
+  Node.js | 浏览器  
+  提供CommonJS、ES Module、UMD三种模块格式
+- 🌐 **跨平台兼容**  
+  ✅ Google Authenticator ✅ Microsoft Authenticator ✅ Authy
+- 🛡️ **安全增强**  
+  支持SHA-256/SHA-512哈希算法，提供验证窗口动态调整
+
+[//]: # (- 📦 **零依赖**  )
+
+[//]: # (  仅依赖原生Crypto API，体积<5KB（gzipped）)
+
+---
+
+## 安装指南
 
 ```bash
 npm install notp
@@ -44,197 +57,194 @@ npm install notp
 yarn add notp
 # 或者
 pnpm add notp
-# 浏览器安装
+```
+
+````html
+<!--浏览器安装-->
 <script src="./dist/notp.umd.js"></script>
-```
+````
 
-## 使用方法
+---
 
-### HOTP (基于计数的一次性密码)
+## 快速开始
 
-```javascript
-import {HOTP} from 'notp';
-
-// 生成HOTP令牌
-const token = HOTP.generate({
-    secret: 'JBSWY3DPEHPK3PXP', // Base32编码的密钥
-    counter: 1,                // 计数器值
-    digits: 6,                 // 验证码位数 (可选，默认6位)
-    algorithm: 'sha1'          // 哈希算法 (可选，默认sha1)
-});
-
-console.log(token); // 输出: 6-digit numeric token
-
-// 验证HOTP令牌
-const result = HOTP.verify({
-    token: '123456',           // 待验证的令牌
-    secret: 'JBSWY3DPEHPK3PXP', // Base32编码的密钥
-    counter: 1,                // 计数器值
-    digits: 6,                 // 验证码位数 (可选，默认6位)
-    window: 1,                 // 验证窗口 (可选，默认1)
-    algorithm: 'sha1'          // 哈希算法 (可选，默认sha1)
-});
-
-console.log(result); // 输出: { success: boolean, delta: number | null }
-```
-
-### TOTP (基于时间的一次性密码)
-
-#### NPM引用
+### 1. 生成TOTP验证码（Node.js）
 
 ```javascript
 import {TOTP} from 'notp';
-
-// 生成TOTP令牌
+// 生成Base32密钥（实际使用应动态生成）
+const secret = 'JBSWY3DPEHPK3PXP';
+// 生成当前时间的一次性密码
 const token = TOTP.generate({
-    secret: 'JBSWY3DPEHPK3PXP', // Base32编码的密钥
-    period: 30,                // 时间步长(秒) (可选，默认30秒)
-    digits: 6,                 // 验证码位数 (可选，默认6位)
-    timestamp: Date.now(),     // 时间戳 (可选，默认当前时间)
-    algorithm: 'sha1'          // 哈希算法 (可选，默认sha1)
+    secret,
+    algorithm: 'sha256' // 推荐使用SHA-256
 });
-
-console.log(token); // 输出: 6-digit numeric token
-
-// 验证TOTP令牌
-const result = TOTP.verify({
-    token: '123456',           // 待验证的令牌
-    secret: 'JBSWY3DPEHPK3PXP', // Base32编码的密钥
-    period: 30,                // 时间步长(秒) (可选，默认30秒)
-    digits: 6,                 // 验证码位数 (可选，默认6位)
-    window: 1,                 // 验证窗口 (可选，默认1)
-    timestamp: Date.now(),     // 时间戳 (可选，默认当前时间)
-    algorithm: 'sha1'          // 哈希算法 (可选，默认sha1)
-});
-
-console.log(result); // 输出: { success: boolean, delta: number | null }
+console.log(`您的验证码：${token}`); // 输出示例: 123456
 ```
 
-#### 浏览器引用
+### 2. 验证TOTP令牌（浏览器）
 
 ```html
 
-<script src="./dist/notp.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/notp/dist/notp.umd.min.js"></script>
 <script>
-    // 生成TOTP令牌
-    const token = notp.TOTP.generate({
-        secret: 'JBSWY3DPEHPK3PXP', // Base32编码的密钥
-        period: 30,                // 时间步长(秒) (可选，默认30秒)
-        digits: 6,                 // 验证码位数 (可选，默认6位)
-        timestamp: Date.now(),     // 时间戳 (可选，默认当前时间)
-        algorithm: 'sha1'          // 哈希算法 (可选，默认sha1)
+    const isValid = notp.TOTP.verify({
+        token: document.getElementById('user-input').value,
+        secret: 'JBSWY3DPEHPK3PXP',
+        window: 3, // 允许3个时间窗口的容差
+        algorithm: 'sha256'
     });
-
-    console.log(token); // 输出: 6-digit numeric token
-
-    // 验证TOTP令牌
-    const result = TOTP.verify({
-        token: '123456',           // 待验证的令牌
-        secret: 'JBSWY3DPEHPK3PXP', // Base32编码的密钥
-        period: 30,                // 时间步长(秒) (可选，默认30秒)
-        digits: 6,                 // 验证码位数 (可选，默认6位)
-        window: 1,                 // 验证窗口 (可选，默认1)
-        timestamp: Date.now(),     // 时间戳 (可选，默认当前时间)
-        algorithm: 'sha1'          // 哈希算法 (可选，默认sha1)
-    });
-
-    console.log(result); // 输出: { success: boolean, delta: number | null }
+    alert(isValid.success ? '验证成功' : '验证码无效');
 </script>
 ```
 
+### 3. HOTP计数器应用场景
+
+```javascript
+// 用户注册时生成初始计数器
+const userCounter = 1;
+
+// 每次认证后更新计数器
+function authenticate(userToken) {
+    const result = HOTP.verify({
+        token: userToken,
+        secret: userSecret,
+        counter: userCounter
+    });
+    if (result.success) {
+        userCounter += result.delta + 1; // 更新计数器
+        return true;
+    }
+    return false;
+}
+```
+
+---
+
+## API参考
+
+### TOTP.generate(options)
+
+| 参数          | 类型     | 必填 | 默认值        | 说明                                |
+|-------------|--------|----|------------|-----------------------------------|
+| `secret`    | string | ✓  | -          | Base32编码的密钥                       |
+| `algorithm` | string | ✗  | sha1       | 哈希算法 (`sha1`, `sha256`, `sha512`) |
+| `digits`    | number | ✗  | 6          | 验证码位数 (6或8)                       |
+| `period`    | number | ✗  | 30         | 时间步长(秒)                           |
+| `timestamp` | number | ✗  | Date.now() | 生成令牌的时间戳                          |
+
+**返回值**: `string` (一次性密码)
+
+### TOTP.verify(options)
+
+| 参数          | 类型     | 必填 | 默认值        | 说明          |
+|-------------|--------|----|------------|-------------|
+| `token`     | string | ✓  | -          | 待验证的令牌      |
+| `secret`    | string | ✓  | -          | Base32编码的密钥 |
+| `window`    | number | ✗  | 1          | 时间窗口容差      |
+| `algorithm` | string | ✗  | sha1       | 哈希算法        |
+| `digits`    | number | ✗  | 6          | 验证码位数       |
+| `period`    | number | ✗  | 30         | 时间步长(秒)     |
+| `timestamp` | number | ✗  | Date.now() | 验证时间戳       |
+
+**返回值**: `{ success: boolean, delta: number | null }`
+
+
+
+### HOTP.generate(options)
+
+| 参数          | 类型     | 必填 | 默认值  | 说明                               |
+|-------------|--------|----|------|----------------------------------|
+| `secret`    | string | ✓  | -    | Base32编码的密钥                      |
+| `counter`    | number | ✓  | -    | 计数器值                               |
+| `digits`    | number | ✗  | 6    | 验证码位数 (6或8)                      |
+| `algorithm` | string | ✗  | sha1 | 哈希算法 (`sha1`, `sha256`, `sha512`) |
+
+**返回值**: `string` (一次性密码)
+
+### TOTP.verify(options)
+
+| 参数          | 类型     | 必填 | 默认值        | 说明          |
+|-------------|--------|----|------------|-------------|
+| `token`     | string | ✓  | -          | 待验证的令牌      |
+| `secret`    | string | ✓  | -          | Base32编码的密钥 |
+| `counter`    | number | ✓  | -          | 计数器值     |
+| `digits`    | number | ✗  | 6          | 验证码位数       |
+| `window`    | number | ✗  | 1          | 时间窗口容差      |
+| `algorithm` | string | ✗  | sha1       | 哈希算法        |
+
+**返回值**: `{ success: boolean, delta: number | null }`
+
+---
+
 ## 算法支持
 
-NOTP 支持以下哈希算法：
+| 算法      | 安全性     | Google认证器兼容 | 推荐场景      |
+|---------|---------|-------------|-----------|
+| SHA-1   | ⚠️ 一般   | ✅ 完全兼容      | 兼容性要求高的场景 |
+| SHA-256 | 🔒 良好   | ⚠️ 部分支持     | 常规安全场景    |
+| SHA-512 | 🔒🔒 优秀 | ⚠️ 部分支持     | 高安全要求场景   |
 
-- SHA-1 (默认)
-- SHA-256
-- SHA-512
+---
 
-## API 参考
+## 贡献指南
 
-### HOTP
+我们欢迎所有形式的贡献！参与流程：
 
-#### HOTP.generate(options)
+1. 提交Issue说明问题/建议
+2. Fork仓库并创建分支：`git checkout -b fix/issue-123`
+3. 遵循编码规范：新增功能需包含单元测试
+4. 提交Pull Request并关联Issue
 
-生成基于计数的一次性密码。
+---
 
-**参数:**
+## 常见问题
 
-- `options.secret` (string): Base32编码的密钥
-- `options.counter` (number): 计数器值
-- `options.digits` (number, optional): 验证码位数，默认为6
-- `options.algorithm` (string, optional): 哈希算法('sha1', 'sha256', 'sha512')，默认为'sha1'
+### ❓ 如何生成安全的Base32密钥？
 
-**返回值:**
+```javascript
+import {Common} from 'notp';
+// 生成20字节的安全随机密钥
+const secret = Common.generateSecret(32);
+console.log(secret); // 输出: JBSWY3DPEHPK3PXP
+```
 
-- (string): 一次性密码
+### ❓ 验证窗口(window)如何设置？
 
-#### HOTP.verify(options)
+- 默认值`1`（当前+前后两个30秒窗口）
+- 高延迟网络建议设为`3`：
 
-验证基于计数的一次性密码。
+```javascript
+TOTP.verify({window: 3, ...})
+```
 
-**参数:**
+[//]: # (### ❓ 如何生成二维码供用户扫描？)
 
-- `options.token` (string): 待验证的令牌
-- `options.secret` (string): Base32编码的密钥
-- `options.counter` (number): 计数器值
-- `options.digits` (number, optional): 验证码位数，默认为6
-- `options.window` (number, optional): 验证窗口，默认为1
-- `options.algorithm` (string, optional): 哈希算法('sha1', 'sha256', 'sha512')，默认为'sha1'
+[//]: # ()
+[//]: # (```javascript)
 
-**返回值:**
+[//]: # (import qrcode from 'qrcode-generator';)
 
-- (object): 包含 `success` (boolean) 和 `delta` (number | null) 的对象
+[//]: # (import {TOTP} from 'notp';)
 
-### TOTP
+[//]: # (const otpauth = TOTP.getAuthURL&#40;{)
 
-#### TOTP.generate(options)
+[//]: # (    secret: 'JBSWY3DPEHPK3PXP',)
 
-生成基于时间的一次性密码。
+[//]: # (    label: 'MyApp:user@example.com',)
 
-**参数:**
+[//]: # (    issuer: 'MyApp')
 
-- `options.secret` (string): Base32编码的密钥
-- `options.period` (number, optional): 时间步长(秒)，默认为30
-- `options.digits` (number, optional): 验证码位数，默认为6
-- `options.timestamp` (number, optional): 时间戳，默认为当前时间
-- `options.algorithm` (string, optional): 哈希算法('sha1', 'sha256', 'sha512')，默认为'sha1'
+[//]: # (}&#41;;)
 
-**返回值:**
+[//]: # (// 生成二维码)
 
-- (string): 一次性密码
+[//]: # (qrcode.toDataURL&#40;otpauth&#41;;)
 
-#### TOTP.verify(options)
+[//]: # (```)
 
-验证基于时间的一次性密码。
-
-**参数:**
-
-- `options.token` (string): 待验证的令牌
-- `options.secret` (string): Base32编码的密钥
-- `options.period` (number, optional): 时间步长(秒)，默认为30
-- `options.digits` (number, optional): 验证码位数，默认为6
-- `options.window` (number, optional): 验证窗口，默认为1
-- `options.timestamp` (number, optional): 时间戳，默认为当前时间
-- `options.algorithm` (string, optional): 哈希算法('sha1', 'sha256', 'sha512')，默认为'sha1'
-
-**返回值:**
-
-- (object): 包含 `success` (boolean) 和 `delta` (number | null) 的对象
-
-## 兼容性
-
-NOTP 与以下验证器应用兼容：
-
-- Google Authenticator
-- Microsoft Authenticator
-- Authy
-- 其他符合 RFC 4226 和 RFC 6238 标准的验证器
+---
 
 ## 许可证
-[MIT](https://github.com/yutons/notp/blob/main/LICENSE)
-
-## 相关标准
-
-- [RFC 4226 - HOTP: An HMAC-Based One-Time Password Algorithm](https://tools.ietf.org/html/rfc4226)
-- [RFC 6238 - TOTP: Time-Based One-Time Password Algorithm](https://tools.ietf.org/html/rfc6238)
+[MIT License](https://github.com/yutons/notp/blob/main/LICENSE) ©yutons  
+允许商业使用、修改和私有部署，需保留版权声明。
