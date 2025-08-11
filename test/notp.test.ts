@@ -141,3 +141,42 @@ test("algorithm 参数测试", () => {
     console.log(Algorithm.includes("SHA1"));
     expect(Algorithm).toContain("SHA1");
 })
+
+
+test("生成TOTP验证码（Node.js）", () => {
+    // 生成Base32密钥（实际使用应动态生成）
+    const secret = 'JBSWY3DPEHPK3PXP';
+// 生成当前时间的一次性密码
+    const token = TOTP.generate({
+        secret,
+        algorithm: 'sha256' // 推荐使用SHA-256
+    });
+    console.log(`您的验证码：${token}`); // 输出示例: 123456
+})
+
+test("验证TOTP令牌（浏览器）", () => {
+    const token = '123456';
+   const result =  TOTP.verify({
+        token: token,
+        secret: 'JBSWY3DPEHPK3PXP',
+        window: 3, // 允许3个时间窗口的容差
+        algorithm: 'sha256'
+    });
+    console.log(`您的验证码：${JSON.stringify(result)}`); // 输出示例: 123456
+})
+
+test("HOTP计数器应用场景", () => {
+    const counter = 1;
+    const token = '123456';
+    const secret = 'JBSWY3DPEHPK3PXP';
+    const result = HOTP.generate({
+        secret: secret,
+        counter: counter
+    });
+    console.log(`${JSON.stringify(result)}`);
+})
+
+test("生成安全的Base32密钥", () => {
+    const secret: string = Common.generateSecret(32);
+    console.log(`您的Base32密钥：${secret}`); // 输出示例: 123456
+})
