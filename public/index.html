@@ -12,7 +12,7 @@
     <script src="cdn/qrcode/qrcode.min.js"></script>
     <script src="cdn/crypto-js/crypto-js.min.js"></script>
     <script src="cdn/dayjs/dayjs.min.js"></script>
-    <script src="../dist/notp.umd.js"></script>
+    <script src="../dist/notp.min.js"></script>
 </head>
 <body>
 <div class="app-container" id="app">
@@ -161,9 +161,6 @@
                 <div class="uri-actions">
                     <button class="btn" @click="copyUri">
                         <i class="fas fa-copy"></i> 复制URI
-                    </button>
-                    <button class="btn btn-success" @click="downloadQRCode">
-                        <i class="fas fa-download"></i> 下载二维码
                     </button>
                 </div>
             </div>
@@ -443,35 +440,6 @@
                         this.error = '生成二维码失败';
                     }
                 });
-            },
-
-            /**
-             * 下载二维码
-             */
-            downloadQRCode() {
-                if (!this.qrCodeLoaded) {
-                    this.$message.warning('请等待二维码生成完成');
-                    return;
-                }
-
-                const canvas = this.$refs.qrcode.querySelector('canvas');
-                if (!canvas) {
-                    this.$message.error('找不到二维码图像');
-                    return;
-                }
-
-                try {
-                    const filename = `NOTP_${this.form.issuer}_${this.form.account}.png`
-                        .replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_'); // 清理文件名
-
-                    const link = document.createElement('a');
-                    link.download = filename;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                } catch (e) {
-                    console.error('下载二维码失败:', e);
-                    this.$message.error('下载二维码失败');
-                }
             }
         }
     })

@@ -61,7 +61,7 @@ pnpm add notp
 
 ````html
 <!--浏览器安装-->
-<script src="./dist/notp.umd.js"></script>
+<script src="./dist/notp.min.js"></script>
 ````
 
 ---
