@@ -16,7 +16,7 @@
 	},
 	"sideEffects": false,
 	"scripts": {
-		"build": "rollup -c && git add . && git commit -m 'build' && git push",
+		"build": "rollup -c && git add . && git commit -m build && git push",
 		"test": "jest",
 		"release": "npm run build && npm publish",
 		"major": "npm run build && npm version major && npm publish",
