@@ -36,7 +36,9 @@ export class HOTP {
             algorithm = 'sha1'
         }: HOTPGenerateOptions
     ): string {
-        digits = typeof digits === "number" ? digits : 6;
+        if (!secret || counter < 0) {
+            throw new Error("无效的参数：secret不能为空，counter必须为非负整数");
+        }
 
         // 1. Base32解码密钥
         const decodedKey = Common.base32Decode(secret);
@@ -52,23 +54,27 @@ export class HOTP {
             new Uint8Array(buffer)
         );
 
-        // 4. 计算HMAC-sha1
+        // 4. 计算HMAC
         let hmac: CryptoJS.lib.WordArray;
-        switch (algorithm?.toUpperCase()) {
+        const alg = algorithm?.toUpperCase() || 'SHA1';
+        switch (alg) {
             case 'SHA256':
                 hmac = CryptoJS.HmacSHA256(counterWordArray, decodedKey);
                 break;
             case 'SHA512':
                 hmac = CryptoJS.HmacSHA512(counterWordArray, decodedKey);
                 break;
-            default: // 默认使用sha1
+            default:
                 hmac = CryptoJS.HmacSHA1(counterWordArray, decodedKey);
         }
 
         // 5. 提取HMAC字节数组
-        const byteArray = this.hmacToByteArray(hmac);
+        const byteArray = this.hmacToByteArray(hmac, alg);
 
         // 6. 动态截断
+        if (byteArray.length < 20) {
+            throw new Error('HMAC输出长度不足，无法进行动态截断');
+        }
         const offset = byteArray[19] & 0xf;
         if (offset + 3 >= byteArray.length) {
             throw new Error('动态截断错误：偏移量超出范围');
@@ -76,6 +82,7 @@ export class HOTP {
 
         // 7. 计算一次性密码
         const binary = this.calculateBinaryCode(byteArray, offset);
+        digits = typeof digits === "number" ? digits : 6;
         return (binary % (10 ** digits)).toString().padStart(digits, '0');
     }
 
@@ -97,7 +104,11 @@ export class HOTP {
                              algorithm = 'sha1'
                          }: HOTPVerifyOptions
     ): { success: boolean; delta: number | null } {
-        for (let i = 0; i <= window; i++) {
+        if (!token || !secret || counter < 0 || window < 0) {
+            return { success: false, delta: null };
+        }
+
+        for (let i = 0; i < window; i++) {
             const currentCounter = counter + i;
             const generatedToken = HOTP.generate({
                 secret, counter: currentCounter, digits, algorithm
@@ -111,16 +122,22 @@ export class HOTP {
         return {success: false, delta: null};
     }
 
-
-
     /**
      * 转换HMAC结果为字节数组
      */
     private static hmacToByteArray(
-        hmac: CryptoJS.lib.WordArray
+        hmac: CryptoJS.lib.WordArray,
+        algorithm: string
     ): Uint8Array<any> {
-        const byteArray = new Uint8Array(20); // sha1输出20字节
-        for (let i = 0; i < 20; i++) {
+        const hashLengthMap: Record<string, number> = {
+            SHA1: 20,
+            SHA256: 32,
+            SHA512: 64
+        };
+        const length = hashLengthMap[algorithm] || 20;
+        const byteArray = new Uint8Array(length);
+
+        for (let i = 0; i < length; i++) {
             const wordIndex = i >>> 2;
             const byteIndex = (3 - (i % 4)) * 8; // 大端序处理
             byteArray[i] = (hmac.words[wordIndex] >>> byteIndex) & 0xff;
