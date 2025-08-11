@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOTP 动态口令生成器 - 安全验证解决方案</title>
+    <link rel="shortcut icon" href="img/logo.png"/>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="cdn/element-ui/theme-chalk/index.css">
+    <script src="cdn/vue/vue.js"></script>
+    <script src="cdn/element-ui/index.js"></script>
+    <script src="cdn/qrcode/qrcode.min.js"></script>
+    <script src="cdn/crypto-js/crypto-js.min.js"></script>
+    <script src="cdn/dayjs/dayjs.min.js"></script>
+    <script src="../dist/notp.umd.js"></script>
+   </head>
+<body>
+<div class="app-container" id="app">
+    <header>
+        <div class="logo-icon">
+            <img src="img/logo.png" width="48px" height="48px"/>
+        </div>
+        <div class="header-content">
+            <div class="logo">NOTP 动态口令生成器</div>
+            <div class="app-description">基于时间的一次性密码 (TOTP) 解决方案</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="config-panel">
+            <h2 class="panel-title">
+                <i class="fas fa-sliders-h"></i> TOTP参数配置
+            </h2>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <div class="control-label">Period</div>
+                    <div class="description">令牌有效周期（TOTP标准参数，以秒为单位）</div>
+                </div>
+                <div class="value-display">
+                    {{ form.duration }}
+                    <span class="small-label">秒</span>
+                </div>
+                <div class="slider-container">
+                    <el-slider v-model="form.duration" :min="10" :max="90" :step="5" show-stops></el-slider>
+                </div>
+            </div>
+
+            <div class="control-group" style="display: flex;">
+                <div class="config-section">
+                    <div class="control-header">
+                        <div class="control-label">Digits</div>
+                        <div class="description">令牌长度（6位或8位）</div>
+                    </div>
+                    <div class="value-display">
+                        {{ form.digits }}
+                        <span class="small-label">位</span>
+                    </div>
+                    <div class="slider-container">
+                        <el-radio-group v-model="form.digits" size="small">
+                            <el-radio-button :label="6">6位</el-radio-button>
+                            <el-radio-button :label="8">8位</el-radio-button>
+                        </el-radio-group>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <div class="control-header">
+                        <div class="control-label">Algorithm</div>
+                        <div class="description">HMAC计算使用的哈希算法</div>
+                    </div>
+                    <div class="value-display">
+                        {{ form.algorithm }}
+                    </div>
+                    <div class="slider-container">
+                        <el-radio-group v-model="form.algorithm" size="small">
+                            <el-radio-button label="sha1">SHA-1</el-radio-button>
+                            <el-radio-button label="sha256">SHA-256</el-radio-button>
+                            <el-radio-button label="sha512">SHA-512</el-radio-button>
+                        </el-radio-group>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <div class="control-label">Secret Key</div>
+                    <div class="description">Base32编码的共享密钥</div>
+                </div>
+                <el-input v-model="form.secret" placeholder="请输入用于生成令牌的密钥"></el-input>
+                <p class="description">
+                    符合RFC 6238的Base32编码密钥（推荐长度32字符）。使用安全随机源生成。
+                </p>
+                <div class="secret-actions">
+                    <button class="btn btn-outline" @click="generateSecret">
+                        <i class="fas fa-sync-alt"></i> 重新生成
+                    </button>
+                    <button class="btn btn-outline" @click="copySecret">
+                        <i class="fas fa-copy"></i> 复制密钥
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="account-issuer">
+                    <div class="account-group">
+                        <div class="control-header">
+                            <div class="control-label">账户</div>
+                            <div class="description">例如: username@example.com</div>
+                        </div>
+                        <el-input v-model="form.account" placeholder="请输入账户名称"></el-input>
+                    </div>
+
+                    <div class="issuer-group">
+                        <div class="control-header">
+                            <div class="control-label">颁发者</div>
+                            <div class="description">例如: Google, Microsoft</div>
+                        </div>
+                        <el-input v-model="form.issuer" placeholder="请输入颁发者"></el-input>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="code-panel">
+            <div class="app-status">
+                <div>当前时间：{{ current }}</div>
+                <div v-if="loading" class="loading-text">生成令牌中...</div>
+                <div v-if="error" class="error-message">{{ error }}</div>
+            </div>
+
+            <div class="token-display-container">
+                <div class="token-display" :class="{'token-update': tokenUpdated}">
+                    {{ token }}
+                </div>
+                <el-progress type="circle" :percentage="progressPercentage" :color="progressColor"
+                             :text-color="progressColor" stroke-linecap="butt" :stroke-width="5" :width="64"
+                             :format="format">
+                    <span class="countdown-text">{{ duration }}</span>
+                </el-progress>
+            </div>
+
+            <div class="qrcode-container">
+                <div class="qrcode-title">扫描二维码添加到身份验证器</div>
+                <div class="qrcode" ref="qrcode">
+                    <div v-if="!qrCodeLoaded" class="loading">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">生成二维码中...</div>
+                    </div>
+                </div>
+                <div class="description">使用Google Authenticator等APP扫描</div>
+            </div>
+
+            <div class="uri-container">
+                <el-input v-model="otpUri" placeholder="OTP URI" class="uri-input">
+                    <template slot="prepend">
+                        <i class="fas fa-link"></i>
+                    </template>
+                </el-input>
+
+                <div class="uri-actions">
+                    <button class="btn" @click="copyUri">
+                        <i class="fas fa-copy"></i> 复制URI
+                    </button>
+                    <button class="btn btn-success" @click="downloadQRCode">
+                        <i class="fas fa-download"></i> 下载二维码
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 NOTP 动态口令生成器 | 安全验证解决方案</p>
+    </footer>
+</div>
+
+<script>
+    // 应用常量
+    const CONSTANTS = {
+        BASE32_CHARS: "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",
+        DEFAULT_SECRET: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+        DEFAULT_PERIOD: 30,
+        DEFAULT_DIGITS: 6,
+        DEFAULT_ALGORITHM: 'sha1',
+        TOKEN_ANIMATION_DURATION: 500,
+        MIN_UPDATE_INTERVAL: 1000
+    };
+
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                current: '', // 当前时间显示
+                duration: 0, // 倒计时剩余秒数
+                token: '------', // 生成的令牌
+                tokenUpdated: false, // 令牌更新动画状态
+                lastUpdate: 0, // 上次更新时间戳
+                qrCodeLoaded: false, // 二维码加载状态
+                qrCode: null, // QRCode实例
+                loading: false, // 加载状态
+                error: '', // 错误信息
+                timer: null, // 定时器引用
+                visibilityHandler: null, // 页面可见性处理函数
+
+                // 表单数据
+                form: {
+                    duration: CONSTANTS.DEFAULT_PERIOD,
+                    digits: CONSTANTS.DEFAULT_DIGITS,
+                    algorithm: CONSTANTS.DEFAULT_ALGORITHM,
+                    secret: CONSTANTS.DEFAULT_SECRET,
+                    account: 'user@example.com',
+                    issuer: 'NOTP Auth'
+                }
+            }
+        },
+
+        computed: {
+            // 进度条百分比
+            progressPercentage() {
+                return (this.duration / this.form.duration) * 100;
+            },
+
+            // 进度条颜色
+            progressColor() {
+                return this.duration < 10 ? 'var(--danger-color)' : 'var(--primary-color)';
+            },
+
+            // 生成OTP URI
+            otpUri() {
+                return `otpauth://totp/${encodeURIComponent(this.form.issuer)}:${encodeURIComponent(this.form.account)}?` +
+                    `secret=${this.form.secret}&issuer=${encodeURIComponent(this.form.issuer)}&` +
+                    `algorithm=${this.form.algorithm}&digits=${this.form.digits}&period=${this.form.duration}`;
+            }
+        },
+
+        watch: {
+            // 监听表单变化
+            form: {
+                handler() {
+                    this.generateTOTP();
+                    this.generateQRCode();
+                },
+                deep: true,
+                immediate: true
+            },
+
+            // 监听周期变化
+            'form.duration': function () {
+                this.resetTimer();
+            },
+
+            // 监听URI变化
+            'otpUri': function () {
+                this.generateQRCode();
+            }
+        },
+
+        mounted() {
+            // 初始化应用
+            this.initializeApp();
+        },
+
+        beforeDestroy() {
+            // 清理资源
+            this.cleanupResources();
+        },
+
+        methods: {
+            /**
+             * 初始化应用
+             */
+            initializeApp() {
+                this.startTimer();
+                this.generateTOTP();
+            },
+
+            /**
+             * 清理资源
+             */
+            cleanupResources() {
+                clearInterval(this.timer);
+                document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+            },
+
+            /**
+             * 格式化进度文本
+             */
+            format() {
+                return this.duration;
+            },
+
+            /**
+             * 生成新密钥
+             */
+            generateSecret() {
+                this.form.secret = notp.Common.generateSecret(32);
+            },
+
+            /**
+             * 复制密钥
+             */
+            copySecret() {
+                this.copyText(this.form.secret, '密钥');
+            },
+
+            /**
+             * 生成TOTP令牌
+             */
+            generateTOTP() {
+                try {
+                    this.loading = true;
+                    this.error = '';
+
+                    this.token = notp.TOTP.generate(
+                        {
+                            secret: this.form.secret
+                        }
+                    );
+                    this.tokenUpdated = true;
+                    this.lastUpdate = Date.now();
+
+                    // 重置动画状态
+                    setTimeout(() => {
+                        this.tokenUpdated = false;
+                    }, 500);
+                } catch (e) {
+                    console.error('生成TOTP错误:', e);
+                    this.error = '生成令牌失败，请检查密钥格式';
+                    this.token = 'ERROR';
+                } finally {
+                    this.loading = false;
+                }
+            },
+            /**
+             * 启动定时器
+             */
+            startTimer() {
+                this.updateDuration();
+                if (!this.timer) {
+                    this.timer = setInterval(() => {
+                        this.updateDuration();
+                        this.current = dayjs().format('YYYY-MM-DD HH:mm:ss');
+                    }, 1000);
+                }
+            },
+
+            /**
+             * 更新倒计时
+             */
+            updateDuration() {
+                const duration = this.form.duration;
+                const now = Math.floor(Date.now() / 1000);
+                const elapsed = now % duration;
+                this.duration = duration - elapsed;
+
+                // 当倒计时结束时更新令牌
+                if (this.duration === duration && Date.now() - this.lastUpdate > 1000) {
+                    this.generateTOTP();
+                }
+            },
+
+            /**
+             * 重置定时器
+             */
+            resetTimer() {
+                clearInterval(this.timer);
+                this.timer = null;
+                this.startTimer();
+                this.generateTOTP();
+            },
+
+            /**
+             * 复制URI
+             */
+            copyUri() {
+                this.copyText(this.otpUri, 'OTP URI');
+            },
+
+            /**
+             * 复制文本到剪贴板
+             */
+            copyText(text, type) {
+                if (!text) {
+                    this.$message.warning('没有内容可复制');
+                    return;
+                }
+
+                navigator.clipboard.writeText(text).then(() => {
+                    this.$message.success(`${type}已复制到剪贴板`);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    this.$message.error('复制失败，请手动复制');
+                });
+            },
+
+            /**
+             * 生成二维码
+             */
+            generateQRCode() {
+                if (!this.otpUri) return;
+
+                if (this.qrCode) {
+                    this.qrCode.clear();
+                    this.qrCode.makeCode(this.otpUri);
+                    return;
+                }
+
+                this.qrCodeLoaded = false;
+
+                // 使用nextTick确保DOM更新
+                this.$nextTick(() => {
+                    try {
+                        this.qrCode = new QRCode(this.$refs.qrcode, {
+                            text: this.otpUri,
+                            width: 160,
+                            height: 160,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                        this.qrCodeLoaded = true;
+                    } catch (e) {
+                        console.error('生成二维码失败:', e);
+                        this.error = '生成二维码失败';
+                    }
+                });
+            },
+
+            /**
+             * 下载二维码
+             */
+            downloadQRCode() {
+                if (!this.qrCodeLoaded) {
+                    this.$message.warning('请等待二维码生成完成');
+                    return;
+                }
+
+                const canvas = this.$refs.qrcode.querySelector('canvas');
+                if (!canvas) {
+                    this.$message.error('找不到二维码图像');
+                    return;
+                }
+
+                try {
+                    const filename = `NOTP_${this.form.issuer}_${this.form.account}.png`
+                        .replace(/[^a-z0-9_]/gi, '_'); // 清理文件名
+
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch (e) {
+                    console.error('下载二维码失败:', e);
+                    this.$message.error('下载二维码失败');
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>

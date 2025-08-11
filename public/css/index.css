@@ -1,0 +1,479 @@
+:root {
+    --primary-color: #2c6fbb;
+    --primary-dark: #1a4d8c;
+    --secondary-color: #1e4a7c;
+    --danger-color: #d32f2f;
+    --light-bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --border-color: #eaeef5;
+    --text-primary: #333;
+    --text-secondary: #597a96;
+    --text-light: #7d97ad;
+    --success-color: #4caf50;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+    background-color: var(--light-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+header {
+    background: rgba(240, 246, 255, 0.3);
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.logo-icon i {
+    color: white;
+}
+
+.header-content {
+    flex: 1;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.app-description {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+main {
+    display: flex;
+    min-height: 600px;
+    flex-wrap: wrap;
+}
+
+.config-panel {
+    flex: 1;
+    min-width: 300px;
+    padding: 10px 20px 0;
+    border-right: 1px solid var(--border-color);
+}
+
+.code-panel {
+    flex: 1;
+    min-width: 300px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-title {
+    color: var(--secondary-color);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-title i {
+    color: var(--primary-color);
+    font-size: 20px;
+}
+
+.control-group {
+    margin-bottom: 20px;
+    background: rgba(240, 246, 255, 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.control-group:hover {
+    background: rgba(240, 246, 255, 0.8);
+}
+
+.control-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.control-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.description {
+    color: var(--text-light);
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: left;
+    max-width: 100%;
+}
+
+.value-display {
+    font-size: 22px;
+    color: var(--secondary-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.slider-container {
+    margin-top: 15px;
+}
+
+.small-label {
+    font-size: 12px;
+    background-color: #eaf0f7;
+    color: #4a7299;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.secret-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.account-issuer {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.account-issuer .control-group {
+    flex: 1;
+    margin-bottom: 0;
+    padding: 0 !important;
+    background: none;
+}
+
+.countdown-container {
+    position: relative;
+    margin: 20px 0;
+}
+
+.token-display-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.token-display {
+    font-size: 48px;
+    color: var(--secondary-color);
+    background: #f0f6ff;
+    padding: 15px 30px;
+    border-radius: 12px;
+    margin: 25px 10px 25px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 5px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(44, 111, 187, 0.15);
+    min-width: 250px;
+}
+
+.qrcode-container {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin: 20px 0 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e1e8f0;
+}
+
+.qrcode {
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background: white;
+    overflow: hidden;
+}
+
+.qrcode-title {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.uri-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.uri-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+footer {
+    text-align: center;
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-light);
+    font-size: 12px;
+    background: rgba(240, 246, 255, 0.3);
+}
+
+.btn {
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: rgba(44, 111, 187, 0.1);
+}
+
+.btn i {
+    font-size: 14px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.token-update {
+    animation: pulse 0.5s;
+}
+
+.el-progress--circle .el-progress__text {
+    font-size: 32px !important;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(44, 111, 187, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+.loading-text {
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.app-status {
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+.error-message {
+    color: var(--danger-color);
+    font-size: 14px;
+    margin-top: 5px;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    main {
+        flex-direction: column;
+    }
+
+    .config-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .token-display {
+        font-size: 36px;
+        min-width: 220px;
+        padding: 12px 25px;
+    }
+
+    .account-issuer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .qrcode-container {
+        padding: 10px;
+    }
+
+    .qrcode {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .app-container {
+        border-radius: 8px;
+    }
+
+    header {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .logo-icon {
+        margin: 0 auto 10px;
+    }
+
+    .token-display {
+        font-size: 32px;
+        min-width: 200px;
+        padding: 10px 20px;
+    }
+
+    .countdown-container {
+        transform: scale(0.9);
+    }
+
+    .uri-container {
+        width: 95%;
+    }
+
+    .control-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .description {
+        text-align: left;
+        max-width: 100%;
+    }
+
+    .config-panel {
+        padding: 15px;
+    }
+
+    .code-panel {
+        padding: 10px 20px 0;
+    }
+
+    .account-issuer > .control-group {
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .secret-actions {
+        flex-direction: column;
+    }
+
+    .uri-actions {
+        flex-direction: column;
+    }
+}
