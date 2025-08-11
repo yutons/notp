@@ -1,5 +1,10 @@
 .idea
 node_modules
 package-lock.json
-dist
+dist/*.map
+dist/*.cjs.js
+dist/*.esm.js
+dist/*.ts
+dist/core
+dist/utils
 stats.html
