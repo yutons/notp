@@ -314,7 +314,10 @@
 
                     this.token = notp.TOTP.generate(
                         {
-                            secret: this.form.secret
+                            secret: this.form.secret,
+                            period: this.form.duration,
+                            digits: this.form.digits,
+                            algorithm: this.form.algorithm
                         }
                     );
                     this.tokenUpdated = true;
@@ -386,12 +389,27 @@
                     return;
                 }
 
-                navigator.clipboard.writeText(text).then(() => {
-                    this.$message.success(`${type}已复制到剪贴板`);
-                }).catch(err => {
-                    console.error('复制失败:', err);
-                    this.$message.error('复制失败，请手动复制');
-                });
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.$message.success(`${type}已复制到剪贴板`);
+                    }).catch(err => {
+                        console.error('复制失败:', err);
+                        this.$message.error('复制失败，请手动复制');
+                    });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        this.$message.success(`${type}已复制到剪贴板`);
+                    } catch (err) {
+                        console.error('复制失败:', err);
+                        this.$message.error('复制失败，请手动复制');
+                    }
+                    document.body.removeChild(textarea);
+                }
             },
 
             /**
@@ -444,7 +462,7 @@
 
                 try {
                     const filename = `NOTP_${this.form.issuer}_${this.form.account}.png`
-                        .replace(/[^a-z0-9_]/gi, '_'); // 清理文件名
+                        .replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_'); // 清理文件名
 
                     const link = document.createElement('a');
                     link.download = filename;
