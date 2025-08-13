@@ -1,9 +1,11 @@
 # NOTP - One-Time Password Library
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/yutons/notp/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](https://www.typescriptlang.org/)
 [![NPM](https://img.shields.io/npm/v/@yutons/notp)](https://npmjs.org/package/@yutons/notp)
 [![npm](https://img.shields.io/npm/dm/@yutons/notp)](https://npm-stat.com/charts.html?package=@yutons/notp)
-[![GitHub stars](https://img.shields.io/github/stars/yutons/notp)](https://github.com/yutons/notp/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/yutons/notp)](stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/yutons/notp)](network/members)
 
 
 🔒 轻量级JavaScript库，实现**HOTP**(RFC 4226)和**TOTP**(RFC 6238)一次性密码算法，提供双因素认证(2FA)解决方案，兼容Google
