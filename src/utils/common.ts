@@ -3,6 +3,16 @@ import * as CryptoJS from 'crypto-js';
 // 私有静态常量
 export const BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
+/**
+ * HMAC 算法类型枚举
+ */
+export enum Algorithm {
+    SM3 = 'SM3',
+    SHA1 = 'SHA1',
+    SHA256 = 'SHA256',
+    SHA512 = 'SHA512'
+}
+
 export class Common {
 
     /**

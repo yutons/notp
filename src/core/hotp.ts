@@ -1,5 +1,5 @@
 import * as CryptoJS from 'crypto-js';
-import {Common} from "../utils/common";
+import {Algorithm, Common} from "../utils/common";
 
 export interface HOTPGenerateOptions {
     secret: string;
@@ -33,7 +33,7 @@ export class HOTP {
             secret,
             counter,
             digits = 6,
-            algorithm = 'sha1'
+            algorithm = Algorithm.SHA1
         }: HOTPGenerateOptions
     ): string {
         if (!secret || counter < 0) {
@@ -56,7 +56,7 @@ export class HOTP {
 
         // 4. 计算HMAC
         let hmac: CryptoJS.lib.WordArray;
-        const alg = algorithm?.toUpperCase() || 'SHA1';
+        const alg = algorithm?.toUpperCase() || Algorithm.SHA1;
         switch (alg) {
             case 'SHA256':
                 hmac = CryptoJS.HmacSHA256(counterWordArray, decodedKey);
@@ -101,7 +101,7 @@ export class HOTP {
                              counter,
                              digits = 6,
                              window = 1,
-                             algorithm = 'sha1'
+                             algorithm = Algorithm.SHA1
                          }: HOTPVerifyOptions
     ): { success: boolean; delta: number | null } {
         if (!token || !secret || counter < 0 || window < 0) {
