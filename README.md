@@ -17,7 +17,7 @@ Authenticator等主流验证器。
 
 ## DEMO地址
 
-[NOTP 动态口令生成器](./demo/)
+[NOTP 动态口令生成器](docs/)
 
 ---
 
