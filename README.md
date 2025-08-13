@@ -82,7 +82,10 @@ console.log(`您的验证码：${code}`);
 
 <script src="https://cdn.jsdelivr.net/npm/notp/dist/notp.umd.min.js"></script>
 <script>
-    const isValid = new notp.TOTP().generate();
+    // 生成Base32密钥（实际使用应动态生成）
+    const secret = 'JBSWY3DPEHPK3PXP';
+    // 生成当前时间的一次性密码
+    const code = new TOTP(secret).generate();
     console.log(`您的验证码：${code}`);
 </script>
 ```
