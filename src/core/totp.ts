@@ -21,14 +21,14 @@ export class TOTP {
      */
     constructor(
         secret: string,
-        period: number = 30,
-        digits: number = 6,
-        algorithm: Algorithm
+        period?: number,
+        digits?: number,
+        algorithm?: Algorithm
     ) {
         this._hotp = new HOTP(secret, 0, digits, algorithm);
-        this._period = period;
+        this._period = period || 30;
         this._timestamp = null; // 默认使用当前时间
-        this._algorithm = algorithm;
+        this._algorithm = algorithm || Algorithm.SHA1;
     }
 
     // --- Getter 和 Setter 方法 ---
