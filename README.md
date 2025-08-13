@@ -1,9 +1,8 @@
 # NOTP - One-Time Password Library
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![NPM](https://img.shields.io/npm/v/notp)](https://npmjs.org/package/notp)
-[![codecov](https://codecov.io/gh/yutons/notp/branch/main/graph/badge.svg)](https://codecov.io/gh/yutons/notp)
-[![npm](https://img.shields.io/npm/dm/notp)](https://npm-stat.com/charts.html?package=notp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/yutons/notp/blob/main/LICENSE)
+[![NPM](https://img.shields.io/npm/v/@yutons/notp)](https://npmjs.org/package/@yutons/notp)
+[![npm](https://img.shields.io/npm/dm/@yutons/notp)](https://npm-stat.com/charts.html?package=@yutons/notp)
 [![GitHub stars](https://img.shields.io/github/stars/yutons/notp)](https://github.com/yutons/notp/stargazers)
 
 
