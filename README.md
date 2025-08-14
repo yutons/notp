@@ -19,6 +19,8 @@ Authenticator等主流验证器。
 
 [NOTP 动态口令生成器](https://notp.5567890.xyz/docs/)
 
+[仓库地址](https://github.com/yutons/notp)
+
 ---
 
 ## 目录
