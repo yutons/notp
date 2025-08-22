@@ -53,11 +53,11 @@ Authenticator等主流验证器。
 ## 安装指南
 
 ```bash
-npm install notp
+npm install @yutons/notp
 # 或者
-yarn add notp
+yarn add @yutons/notp
 # 或者
-pnpm add notp
+pnpm add @yutons/notp
 ```
 
 ````html
@@ -72,11 +72,11 @@ pnpm add notp
 ### 1. 生成TOTP验证码（Node.js）
 
 ```javascript
-import {TOTP} from 'notp';
+import notp from '@yutons/notp';
 // 生成Base32密钥（实际使用应动态生成）
 const secret = 'JBSWY3DPEHPK3PXP';
 // 生成当前时间的一次性密码
-const code = new TOTP(secret).generate();
+const code = new notp.TOTP(secret).generate();
 console.log(`您的验证码：${code}`);
 ```
 
@@ -89,7 +89,7 @@ console.log(`您的验证码：${code}`);
     // 生成Base32密钥（实际使用应动态生成）
     const secret = 'JBSWY3DPEHPK3PXP';
     // 生成当前时间的一次性密码
-    const code = new TOTP(secret).generate();
+    const code = new notp.TOTP(secret).generate();
     console.log(`您的验证码：${code}`);
 </script>
 ```
